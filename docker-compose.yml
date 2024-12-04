@@ -36,7 +36,7 @@ services:
     image: ngrok/ngrok:latest
     container_name: ngrok
     environment:
-      - NGROK_AUTHTOKEN=2lIJnqWtZBS0mTmybloBTzbfDX2_61thh8DDTWwKvaDxRpv6q
+      - NGROK_AUTHTOKEN=         # Faça seu login no ngrok e copia seu authToken e cole aqui
     command: "http app:8080"
     ports:
       - "4040:4040"
