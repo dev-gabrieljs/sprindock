@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-cont
+    environment:
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: senha
+      POSTGRES_DB: meubanco
+    ports:
+      - "5432:5432"  # Expondo a porta 5432 do PostgreSQL
+    volumes:
+      - postgres-data:/var/lib/postgresql/data  # Persistência de dados do banco de dados
+    networks:
+      - local-network
+
+  app:
+    build: .
+    container_name: app-container
+    depends_on:
+      - postgres  # Garante que o banco de dados seja iniciado antes da aplicação
+    ports:
+      - "8080:8080"  # Expondo a aplicação na porta 8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meubanco
+      SPRING_DATASOURCE_USERNAME: usuario
+      SPRING_DATASOURCE_PASSWORD: senha
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    networks:
+      - local-network
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    environment:
+      - NGROK_AUTHTOKEN=2lIJnqWtZBS0mTmybloBTzbfDX2_61thh8DDTWwKvaDxRpv6q
+    command: "http app:8080"
+    ports:
+      - "4040:4040"
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
