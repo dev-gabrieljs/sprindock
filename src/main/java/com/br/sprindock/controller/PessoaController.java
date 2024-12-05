@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")  // Prefixando todas as rotas com /users
@@ -18,20 +19,17 @@ public class PessoaController {
 
     @PostMapping
     public ResponseEntity<Pessoa> createUser(@RequestBody Pessoa pessoa) {
-        Pessoa savedPessoa = pessoService.create(pessoa);
-        return new ResponseEntity<>(savedPessoa, HttpStatus.CREATED);  // Usando status 201 para criação
+        return new ResponseEntity<>(pessoService.create(pessoa), HttpStatus.CREATED);  // Usando status 201 para criação
     }
 
     @GetMapping
     public ResponseEntity<List<Pessoa>> listUsers() {
-        List<Pessoa> users = pessoService.list();
-        return new ResponseEntity<>(users, HttpStatus.OK);  // Retornando com status 200
+        return new ResponseEntity<>(pessoService.list(), HttpStatus.OK);  // Retornando com status 200
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pessoa> getUserById(@PathVariable Long id) {
-        return pessoService.getUserById(id)
-                .map(pessoa -> new ResponseEntity<>(pessoa, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Optional<Pessoa>> getUserById(@PathVariable Long id) {
+        return new ResponseEntity<>(pessoService.getUserById(id), HttpStatus.OK);
     }
+
 }
