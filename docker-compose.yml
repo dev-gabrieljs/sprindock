@@ -9,11 +9,16 @@ services:
       POSTGRES_PASSWORD: senha
       POSTGRES_DB: meubanco
     ports:
-      - "5432:5432"  # Expondo a porta 5432 do PostgreSQL
+      - "5433:5432"  # Expondo a porta 5433 do PostgreSQL
     volumes:
       - postgres-data:/var/lib/postgresql/data  # Persistência de dados do banco de dados
     networks:
       - local-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"  # Limita a 50% de um núcleo
+          memory: 512M # Limita a 512 MB de RAM
 
   app:
     build: .
@@ -31,17 +36,28 @@ services:
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
     networks:
       - local-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"  # Limita a 1 núcleo de CPU
+          memory: 1024M # Limita a 1 GB de RAM
 
   ngrok:
     image: ngrok/ngrok:latest
     container_name: ngrok
     environment:
-      - NGROK_AUTHTOKEN=         # Faça seu login no ngrok e copia seu authToken e cole aqui
+      - NGROK_AUTHTOKEN=          # Faça seu login no ngrok e copia seu authToken e cole aqui
     command: "http app:8080"
     ports:
       - "4040:4040"
     networks:
       - local-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"  # Limita a 20% de um núcleo
+          memory: 256M # Limita a 256 MB de RAM
+
 
 networks:
   local-network:
