@@ -30,7 +30,43 @@ mvn clean package -DskipTests
 ```
 Isso gerará o arquivo sprindock-0.0.1-SNAPSHOT.jar na pasta target/.
 
-### Passo 2: Construir a Imagem Docker
+### Passo 2: Criar a Rede Interna
+
+O Docker Compose utiliza redes internas para permitir a comunicação entre containers sem expor serviços desnecessários. Para isso, configure a rede no arquivo `docker-compose.yml`:
+
+Adicione a seguinte configuração no final do arquivo `docker-compose.yml`:
+
+```yaml
+networks:
+  internal-network:
+    driver: bridge
+```
+Certifique-se de que todos os serviços no arquivo docker-compose.yml estão conectados a essa rede. Exemplo de configuração de um serviço com rede:
+
+```yaml
+services:
+  postgres:
+    networks:
+      - internal-network
+  app:
+    networks:
+      - internal-network
+  ngrok:
+    networks:
+      - internal-network
+```
+
+Essa configuração cria uma rede isolada chamada `internal-network`, onde apenas os serviços especificados podem se comunicar entre si.
+
+Caso prefira criar a rede manualmente pelo terminal antes de executar o docker-compose, use o seguinte comando:
+
+```bash
+docker network create internal-network
+```
+Isso criará a rede chamada internal-network usando o driver bridge.
+
+
+### Passo 3: Construir a Imagem Docker
 
 Em seguida, crie a imagem Docker para a aplicação:
 
@@ -38,7 +74,7 @@ Em seguida, crie a imagem Docker para a aplicação:
 docker build -t sprindock .
 ```
 
-### Passo 3: Iniciar os Containers com Docker Compose
+### Passo 4: Iniciar os Containers com Docker Compose
 
 Para rodar os containers, use o Docker Compose:
 
@@ -53,7 +89,7 @@ Esse comando irá:
 
 O Docker Compose vai criar uma rede local para os containers se comunicarem entre si.
 
-### Passo 4: Configurar o Ngrok
+### Passo 5: Configurar o Ngrok
 
 Para usar o Ngrok, você precisa de um token de autenticação. Caso ainda não tenha, crie uma conta no Ngrok e copie o seu authtoken.
 
@@ -73,7 +109,7 @@ ngrok:
 ```
 Esse token é necessário para que o Ngrok possa expor a sua aplicação de forma segura.
 
-### Passo 5: Acessar a Aplicação
+### Passo 6: Acessar a Aplicação
 
 Após rodar o `docker-compose up`, você pode acessar a aplicação via Ngrok.
 
@@ -95,7 +131,7 @@ O link http://xyz12345.ngrok.io é a URL pública que você pode usar para acess
 
 O link `http://xyz12345.ngrok.io` é a URL pública que você pode usar para acessar a aplicação Spring Boot, que estará rodando na porta 8080 dentro do container.
 
-### Passo 6: Desligar a Swap (Opcional)
+### Passo 7: Desligar a Swap (Opcional)
 
 Em sistemas Linux, para evitar problemas de desempenho com o Docker, você pode desligar o swap com o comando:
 
@@ -103,7 +139,7 @@ Em sistemas Linux, para evitar problemas de desempenho com o Docker, você pode 
 sudo swapoff -a
 ```
 
-### Passo 7: Encerrar os Containers
+### Passo 8: Encerrar os Containers
 
 Quando terminar de usar a aplicação, você pode parar todos os containers com o comando:
 
